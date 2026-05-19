@@ -1,18 +1,19 @@
 const express = require('express');
 const app = express();
 app.get('/', (req, res) => res.send('Bot is active!'));
-app.listen(process.env.PORT || 3000);const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
-const fs = require('fs');
-
-const client = new Client({
+app.listen(process.env.PORT || 3000);const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: true,
+        headless: true, // Zaroori hai
+        executablePath: '/usr/bin/google-chrome-stable', // Ye path ensure karo
         args: [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox', 
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process', // RAM bachane ke liye
             '--disable-gpu'
         ]
     }
