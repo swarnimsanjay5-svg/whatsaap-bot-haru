@@ -1,24 +1,24 @@
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const express = require('express');
+const app = express();
+app.get('/', (req, res) => res.send('Bot is active!'));
+app.listen(process.env.PORT || 3000);const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const fs = require('fs');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        handleSIGINT: false,
-        protocolTimeout: 300000,
+        headless: true,
         args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-gpu',
+            '--no-sandbox', 
+            '--disable-setuid-sandbox', 
             '--disable-dev-shm-usage',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-extensions',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+            '--disable-gpu'
         ]
     }
 });
+
+client.initialize();
 
 const DB_FILE = './database.json';
 let db = {};
