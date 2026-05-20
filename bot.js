@@ -22,15 +22,19 @@ const client = new Client({
 client.on('ready', () => console.log('Client is ready!'));
 client.on('qr', (qr) => console.log('QR RECEIVED', qr));
 
-// 3. Error Handling (Crucial!)
-process.on('uncaughtException', (err) => console.error('CRASH:', err));
-process.on('unhandledRejection', (err) => console.error('UNHANDLED:', err));
-// Remove Chrome lock files
-const path = require('path');
-['SingletonLock','SingletonCookie','SingletonSocket'].forEach(f => {
-    const p = path.join('.wwebjs_auth','session',f);
-    if (fs.existsSync(p)) { fs.unlinkSync(p); console.log('Removed lock:', f); }
-});
+// Nuclear lock file removal
+try {
+    const sessionPath = '.wwebjs_auth/session';
+    if (fs.existsSync(sessionPath)) {
+        fs.readdirSync(sessionPath).forEach(f => {
+            if (f.startsWith('Singleton') || f.endsWith('.lock')) {
+                try { fs.unlinkSync(`${sessionPath}/${f}`); console.log('Deleted:', f); } catch(e) {}
+            }
+        });
+    }
+} catch(e) { console.log('Lock cleanup error:', e.message); }
+
+client.initialize();
 client.initialize();
 
 client.initialize();
