@@ -1,23 +1,29 @@
 const express = require('express');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+
+// Keep-Alive Server
 const app = express();
-app.get('/', (req, res) => res.send('Bot is active!'));
-app.listen(process.env.PORT || 3000);const client = new Client({
+app.get('/', (req, res) => res.send('Bot is running! 🚀'));
+app.listen(process.env.PORT || 3000, () => console.log('Server alive'));
+
+// Client Setup
+const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: true, // Zaroori hai
-        executablePath: '/usr/bin/google-chrome-stable', // Ye path ensure karo
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process', // RAM bachane ke liye
-            '--disable-gpu'
-        ]
+        headless: true,
+        executablePath: '/usr/bin/google-chrome-stable',
+        args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-gpu']
     }
 });
+
+client.on('ready', () => console.log('Client is ready!'));
+client.on('qr', (qr) => console.log('QR RECEIVED', qr));
+
+// 3. Error Handling (Crucial!)
+process.on('uncaughtException', (err) => console.error('CRASH:', err));
+process.on('unhandledRejection', (err) => console.error('UNHANDLED:', err));
+
+client.initialize();
 
 client.initialize();
 
