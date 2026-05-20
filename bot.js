@@ -2,40 +2,51 @@ const express = require('express');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const fs = require('fs');
+const path = require('path');
 
 // Keep-Alive Server
 const app = express();
-app.get('/', (req, res) => res.send('Bot is running! 🚀'));
-app.listen(process.env.PORT || 3000, () => console.log('Server alive'));
-
-// Client Setup
-const client = new Client({
-    authStrategy: new LocalAuth(),
-    puppeteer: {
-        headless: true,
-        executablePath: '/usr/bin/google-chrome-stable',
-        args: ['--no-sandbox','--disable-setuid-sandbox',
-               '--disable-dev-shm-usage','--disable-gpu']
-    }
+let lastQr = '';
+app.get('/', (req, res) => res.send('Bot is running!'));
+app.get('/qr', (req, res) => {
+    if (lastQr) res.send(`<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(lastQr)}">`);
+    else res.send('QR not ready yet, wait 30 seconds and refresh!');
 });
+app.listen(process.env.PORT || 3000);
 
-client.on('ready', () => console.log('Client is ready!'));
-client.on('qr', (qr) => console.log('QR RECEIVED', qr));
-
-// Nuclear lock file removal
+// Remove lock files
 try {
-    const sessionPath = '.wwebjs_auth/session';
-    if (fs.existsSync(sessionPath)) {
-        fs.readdirSync(sessionPath).forEach(f => {
+    const sp = '.wwebjs_auth/session';
+    if (fs.existsSync(sp)) {
+        fs.readdirSync(sp).forEach(f => {
             if (f.startsWith('Singleton') || f.endsWith('.lock')) {
-                try { fs.unlinkSync(`${sessionPath}/${f}`); console.log('Deleted:', f); } catch(e) {}
+                try { fs.unlinkSync(`${sp}/${f}`); } catch(e) {}
             }
         });
     }
-} catch(e) { console.log('Lock cleanup error:', e.message); }
+} catch(e) {}
 
-client.initialize();
-client.initialize();
+const client = new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        executablePath: '/usr/bin/google-chrome-stable',
+        args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-gpu']
+    }
+});
+
+client.on('qr', qr => {
+    lastQr = qr;
+    qrcode.generate(qr, {small: true});
+    console.log('QR Ready! Visit /qr on your Render URL to scan!');
+});
+
+client.on('ready', () => {
+    lastQr = '';
+    console.log('🚀 BOT ONLINE');
+});
+
+process.on('uncaughtException', err => console.error('CRASH:', err));
+process.on('unhandledRejection', err => console.error('UNHANDLED:', err));
 
 client.initialize();
 
