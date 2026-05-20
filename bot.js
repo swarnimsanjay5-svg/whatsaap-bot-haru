@@ -25,7 +25,12 @@ client.on('qr', (qr) => console.log('QR RECEIVED', qr));
 // 3. Error Handling (Crucial!)
 process.on('uncaughtException', (err) => console.error('CRASH:', err));
 process.on('unhandledRejection', (err) => console.error('UNHANDLED:', err));
-
+// Remove Chrome lock files
+const path = require('path');
+['SingletonLock','SingletonCookie','SingletonSocket'].forEach(f => {
+    const p = path.join('.wwebjs_auth','session',f);
+    if (fs.existsSync(p)) { fs.unlinkSync(p); console.log('Removed lock:', f); }
+});
 client.initialize();
 
 client.initialize();
