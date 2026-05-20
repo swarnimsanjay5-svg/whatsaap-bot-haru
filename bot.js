@@ -1,5 +1,7 @@
 const express = require('express');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
+const fs = require('fs');
 
 // Keep-Alive Server
 const app = express();
@@ -12,7 +14,8 @@ const client = new Client({
     puppeteer: {
         headless: true,
         executablePath: '/usr/bin/google-chrome-stable',
-        args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-gpu']
+        args: ['--no-sandbox','--disable-setuid-sandbox',
+               '--disable-dev-shm-usage','--disable-gpu']
     }
 });
 
