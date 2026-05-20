@@ -27,7 +27,7 @@ try {
 } catch(e) {}
 
 const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: '/tmp/.wwebjs_auth' }),
+    authStrategy: new LocalAuth({ dataPath: `/tmp/wwa${Date.now()}` }),
     puppeteer: {
         executablePath: '/usr/bin/google-chrome-stable',
         args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-gpu']
